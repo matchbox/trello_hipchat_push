@@ -39,6 +39,9 @@ def send_action_to_hipchat(room_id, action):
                 action.data.get('boardSource').get('name'),
                 action.data.get('board').get('name')
                 )
+    elif action.type == 'moveCardFromBoard':
+        # ignore this message because it's covered by 'moveCardToBoard'
+        return
     elif action.type == 'commentCard':
         message += ' commented on %s: %s' % (
                 html_card_link,
@@ -60,6 +63,8 @@ def send_action_to_hipchat(room_id, action):
                 )
     elif action.type == 'createCard':
         message += ' created the card %s' % html_card_link
+    elif action.type == 'updateCard':
+        message += ' updated %s' % html_card_link
     else:
         # fail-over for things not yet caught
         message += ' %s %s' % (
