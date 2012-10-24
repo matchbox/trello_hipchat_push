@@ -23,7 +23,7 @@ def save_seen(seen):
 
 def send_action_to_hipchat(room_id, action):
     message = unicode(action.creator.fullname)
-    message_format = 'text'
+    message_format = 'html'
     card = action._conn.get_card(action.data.get('card').get('id'))
     card_link = "%s (%s)" % (
         action.data.get('card').get('name'),
@@ -34,7 +34,6 @@ def send_action_to_hipchat(room_id, action):
         action.data.get('card').get('name'),
         )
     if action.type == 'moveCardToBoard':
-        message_format = 'html'
         message += ' moved %s from %s to %s' % (
                 html_card_link,
                 action.data.get('boardSource').get('name'),
@@ -42,27 +41,30 @@ def send_action_to_hipchat(room_id, action):
                 )
     elif action.type == 'commentCard':
         message += ' commented on %s: %s' % (
-                card_link,
+                html_card_link,
                 action.data.get('text')
                 )
     elif action.type == 'addAttachmentToCard':
+        # message in text with a link to a png will load the image in the chat
+        # with smart resizing and whatnot
+        message_format = 'text'
         message += ' added an attachment to %s: %s' % (card_link,
             action.data.get('attachment').get('url'))
     elif action.type == 'addMemberToCard':
-        message_format = 'html'
         person_added = action._conn.get_member(action.data.get('idMember'))
         message += ' added %s to %s' % (person_added.fullname, html_card_link)
     elif action.type == 'addChecklistToCard':
         message += ' added the checklist "%s" to %s' % (
                 action.data.get('checklist').get('name'),
-                card_link
+                html_card_link
                 )
     elif action.type == 'createCard':
-        message += ' created the card %s' % card_link
+        message += ' created the card %s' % html_card_link
     else:
+        # fail-over for things not yet caught
         message += ' %s %s' % (
                 action.type,
-                card_link,
+                html_card_link,
                 )
     post_data = {
         'room_id': room_id,
