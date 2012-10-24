@@ -1,0 +1,5 @@
+{
+    "boards":{
+        "trello_board_id": ["hipchat_room_id"],
+    }
+}
