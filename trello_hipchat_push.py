@@ -1,4 +1,4 @@
-from trollop import TrelloConnection
+from trollop import TrelloConnection, Board
 import os
 import json
 from time import sleep
@@ -94,8 +94,8 @@ def main():
                                                   in eligible_boards])
     while True:
         for board in eligible_boards:
-            # otherwise the values are all cached and nothing changes
-            board._lists = {}
+            # must do this or the values are all cached and nothing changes
+            Board.__dict__['actions']._lists = {}
             for action in reversed(board.actions[:5]):
                 if action._id not in seen:
                     for room_id in config.get('boards').get(board._id):
