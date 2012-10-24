@@ -23,14 +23,20 @@ def save_seen(seen):
 
 def send_action_to_hipchat(room_id, action):
     message = unicode(action.creator.fullname)
+    message_format = 'text'
     card = action._conn.get_card(action.data.get('card').get('id'))
     card_link = "%s (%s)" % (
         action.data.get('card').get('name'),
         card.url,
         )
+    html_card_link = '<a href="%s">%s</a>' % (
+        card.url,
+        action.data.get('card').get('name'),
+        )
     if action.type == 'moveCardToBoard':
+        message_format = 'html'
         message += ' moved %s from %s to %s' % (
-                card_link,
+                html_card_link,
                 action.data.get('boardSource').get('name'),
                 action.data.get('board').get('name')
                 )
@@ -43,8 +49,9 @@ def send_action_to_hipchat(room_id, action):
         message += ' added an attachment to %s: %s' % (card_link,
             action.data.get('attachment').get('url'))
     elif action.type == 'addMemberToCard':
+        message_format = 'html'
         person_added = action._conn.get_member(action.data.get('idMember'))
-        message += ' added %s to %s' % (person_added.fullname, card_link)
+        message += ' added %s to %s' % (person_added.fullname, html_card_link)
     elif action.type == 'addChecklistToCard':
         message += ' added the checklist "%s" to %s' % (
                 action.data.get('checklist').get('name'),
@@ -60,7 +67,7 @@ def send_action_to_hipchat(room_id, action):
     post_data = {
         'room_id': room_id,
         'from': os.environ.get('HIPCHAT_BOT_NAME'),
-        'message_format': 'text',
+        'message_format': message_format,
         'message': message
     }
     res = requests.post(HIPCHAT_URL, data=post_data)
