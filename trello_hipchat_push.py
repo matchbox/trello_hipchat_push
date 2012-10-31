@@ -65,6 +65,11 @@ def send_action_to_hipchat(room_id, action):
         message += ' created the card %s' % html_card_link
     elif action.type == 'updateCard':
         message += ' updated %s' % html_card_link
+    elif action.type == 'updateCheckItemStateOnCard':
+        check_item = action.data.get('checkItem')
+        state = check_item.get('state', 'incomplete')
+        message += ' marked "%s" as %s on %s' % (
+            check_item['name'], state, html_card_link)
     else:
         # fail-over for things not yet caught
         message += ' %s %s' % (
